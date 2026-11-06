@@ -1,5 +1,6 @@
 package dev.cormac.huddle.web;
 
+import dev.cormac.huddle.domain.SummaryUnavailableException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,5 +16,10 @@ public class ApiExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     ProblemDetail handleInvalidInput(IllegalArgumentException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(SummaryUnavailableException.class)
+    ProblemDetail handleSummaryUnavailable(SummaryUnavailableException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());
     }
 }

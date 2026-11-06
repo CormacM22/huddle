@@ -1,8 +1,12 @@
 package dev.cormac.huddle.web;
 
+import dev.cormac.huddle.domain.ActionItem;
 import dev.cormac.huddle.domain.ChatMessage;
+import dev.cormac.huddle.domain.MeetingSummary;
 import dev.cormac.huddle.domain.RoomId;
+import dev.cormac.huddle.domain.SummaryUnavailableException;
 import dev.cormac.huddle.service.ChatService;
+import dev.cormac.huddle.service.SummaryService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -30,6 +34,9 @@ class RoomControllerTest {
     @MockitoBean
     private ChatService chatService;
 
+    @MockitoBean
+    private SummaryService summaryService;
+
     @Test
     void returnsRoomHistoryAsJson() {
         var message = new ChatMessage(UUID.fromString("00000000-0000-0000-0000-000000000001"),
@@ -56,6 +63,29 @@ class RoomControllerTest {
 
         assertThat(mvc.get().uri("/api/rooms/general/messages?limit=10")).hasStatusOk();
         verify(chatService).history(GENERAL, 10);
+    }
+
+    @Test
+    void summariseReturnsSummaryAndActionItems() {
+        when(summaryService.summarise(GENERAL)).thenReturn(new MeetingSummary("Shipped v1.",
+                List.of(new ActionItem("Cian", "Write release notes"))));
+
+        var response = mvc.post().uri("/api/rooms/general/summary");
+
+        assertThat(response).hasStatusOk();
+        assertThat(response).bodyJson().isLenientlyEqualTo("""
+                {"summary": "Shipped v1.", "actionItems": [{"owner": "Cian", "task": "Write release notes"}]}
+                """);
+    }
+
+    @Test
+    void summaryUnavailableIsServiceUnavailable() {
+        when(summaryService.summarise(GENERAL)).thenThrow(new SummaryUnavailableException("AI is off"));
+
+        var response = mvc.post().uri("/api/rooms/general/summary");
+
+        assertThat(response).hasStatus(HttpStatus.SERVICE_UNAVAILABLE);
+        assertThat(response).bodyJson().extractingPath("$.detail").isEqualTo("AI is off");
     }
 
     @Test
