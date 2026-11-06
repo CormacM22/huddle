@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Cancel superseded runs on the same branch/PR.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false # see every OS's result, not just the first failure
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    defaults:
+      run:
+        shell: bash # same script on all three OSes (Git Bash on Windows)
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Build, test and enforce coverage
+        run: ./mvnw -B verify
+
+      - name: Coverage summary
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          awk -F, 'NR>1 { missed += $8; covered += $9 }
+            END { printf "### Line coverage: %.1f%% (%d/%d lines)\n", 100*covered/(missed+covered), covered, missed+covered }' \
+            target/site/jacoco/jacoco.csv >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload coverage report
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: target/site/jacoco/
+
+      - name: Upload test reports on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports-${{ matrix.os }}
+          path: target/surefire-reports/
+
+  docker:
+    name: Docker build + smoke test
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t huddle:ci .
+
+      - name: Start container and wait for health
+        run: |
+          docker run -d --name huddle -p 8080:8080 huddle:ci
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:8080/actuator/health | grep -q '"UP"'; then
+              echo "Healthy after ${i}s"; exit 0
+            fi
+            sleep 1
+          done
+          docker logs huddle
+          exit 1
+
+      - name: Smoke test the API
+        run: |
+          curl -fsS http://localhost:8080/api/rooms/general/messages | grep -q '^\[\]$'
+          curl -fsS -o /dev/null http://localhost:8080/
+          # Empty room short-circuits without calling the model, so this works with no API key.
+          curl -fsS -X POST http://localhost:8080/api/rooms/general/summary | grep -q 'No messages to summarise yet'
+          # Invalid input is a 400, not a 500.
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/api/rooms/BAD_ID/messages)" = "400"
+
+      - name: Stop container
+        if: always()
+        run: docker rm -f huddle

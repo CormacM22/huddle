@@ -1,0 +1,12 @@
+name: huddle
+
+services:
+  huddle:
+    build: .
+    image: huddle:local
+    ports:
+      - "8080:8080"
+    environment:
+      # Read from your shell or a local .env file (gitignored). Leave unset to run without AI summaries.
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    restart: unless-stopped
