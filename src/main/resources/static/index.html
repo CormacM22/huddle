@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Huddle</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <h1 class="brand">Huddle</h1>
+      <label class="field">
+        <span>Your name</span>
+        <input id="author" maxlength="32" placeholder="e.g. Aoife" autocomplete="nickname">
+      </label>
+      <nav>
+        <h2>Rooms</h2>
+        <ul id="rooms"></ul>
+        <form id="join-form" class="join">
+          <input id="join-input" placeholder="new-room" pattern="[a-z0-9](?:[a-z0-9\-]{0,30}[a-z0-9])?"
+                 title="lowercase letters, digits and hyphens" aria-label="Join or create a room">
+          <button type="submit">Join</button>
+        </form>
+      </nav>
+      <p id="status" class="status" data-state="connecting">Connecting…</p>
+    </aside>
+
+    <main class="room">
+      <header class="room-header">
+        <h2 id="room-title">#general</h2>
+        <button id="summarise" type="button">Summarise</button>
+      </header>
+
+      <section id="summary" class="summary" hidden aria-live="polite">
+        <div class="summary-head">
+          <h3>Summary</h3>
+          <button id="summary-close" type="button" class="link" aria-label="Close summary">Close</button>
+        </div>
+        <p id="summary-text"></p>
+        <h4>Action items</h4>
+        <ul id="summary-actions"></ul>
+      </section>
+
+      <ol id="messages" class="messages" aria-live="polite"></ol>
+
+      <form id="composer" class="composer">
+        <input id="content" maxlength="2000" placeholder="Message #general" autocomplete="off" required
+               aria-label="Message">
+        <button type="submit">Send</button>
+      </form>
+      <p id="error" class="error" role="alert" hidden></p>
+    </main>
+  </div>
+
+  <!-- Pinned STOMP client; everything else is plain JS. -->
+  <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

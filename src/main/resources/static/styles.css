@@ -1,0 +1,110 @@
+:root {
+  --bg: #f6f7f9;
+  --panel: #ffffff;
+  --sidebar: #0f1a2b;
+  --sidebar-text: #d7deea;
+  --muted: #6b7280;
+  --text: #111827;
+  --accent: #0a7c86;
+  --accent-text: #ffffff;
+  --border: #e5e7eb;
+  --error: #b42318;
+  --ok: #16a34a;
+  --radius: 10px;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--text);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117;
+    --panel: #161b22;
+    --sidebar: #090d13;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --border: #30363d;
+    --accent: #2bb3bf;
+    --accent-text: #061214;
+    --error: #ff7b72;
+  }
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); }
+button, input { font: inherit; }
+
+.app { display: grid; grid-template-columns: 240px 1fr; height: 100dvh; }
+
+/* Sidebar */
+.sidebar {
+  background: var(--sidebar); color: var(--sidebar-text);
+  padding: 20px 16px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto;
+}
+.brand { margin: 0; font-size: 1.4rem; letter-spacing: .02em; color: #fff; }
+.sidebar h2 { font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: #8a97ad; margin: 0 0 8px; }
+.field { display: grid; gap: 6px; font-size: .85rem; }
+.sidebar input {
+  width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #2a3850;
+  background: #17243a; color: #fff;
+}
+#rooms { list-style: none; margin: 0 0 10px; padding: 0; display: grid; gap: 2px; }
+#rooms button {
+  width: 100%; text-align: left; padding: 6px 10px; border: 0; border-radius: 6px;
+  background: transparent; color: inherit; cursor: pointer;
+}
+#rooms button:hover { background: #1b2a44; }
+#rooms button.active { background: var(--accent); color: var(--accent-text); }
+.join { display: flex; gap: 6px; }
+.join button { padding: 0 10px; border-radius: 8px; border: 0; background: #2a3850; color: #fff; cursor: pointer; }
+.status { margin-top: auto; font-size: .8rem; display: flex; align-items: center; gap: 8px; }
+.status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; }
+.status[data-state="online"]::before { background: var(--ok); }
+.status[data-state="offline"]::before { background: var(--error); }
+
+/* Room */
+.room { display: flex; flex-direction: column; min-width: 0; min-height: 0; background: var(--panel); }
+.room-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 20px; border-bottom: 1px solid var(--border);
+}
+.room-header h2 { margin: 0; font-size: 1.1rem; }
+.room-header button, .composer button {
+  padding: 8px 14px; border-radius: 8px; border: 0; cursor: pointer;
+  background: var(--accent); color: var(--accent-text); font-weight: 600;
+}
+button:disabled { opacity: .6; cursor: progress; }
+
+.summary {
+  margin: 12px 20px 0; padding: 14px 16px; border-radius: var(--radius);
+  border: 1px solid var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--panel));
+}
+.summary-head { display: flex; justify-content: space-between; align-items: baseline; }
+.summary h3, .summary h4 { margin: 0 0 6px; }
+.summary h4 { margin-top: 12px; font-size: .9rem; }
+.summary p { margin: 0; line-height: 1.5; }
+.summary ul { margin: 0; padding-left: 20px; }
+.link { background: none; border: 0; color: var(--accent); cursor: pointer; }
+
+.messages { list-style: none; margin: 0; padding: 12px 20px; flex: 1; overflow-y: auto; }
+.message { padding: 8px 0; }
+.message .meta { display: flex; gap: 8px; align-items: baseline; }
+.message time { color: var(--muted); font-size: .75rem; }
+.message p { margin: 2px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.45; }
+
+.composer { display: flex; gap: 8px; padding: 12px 20px; border-top: 1px solid var(--border); }
+.composer input {
+  flex: 1; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--bg); color: var(--text);
+}
+.error { margin: 0 20px 12px; color: var(--error); font-size: .9rem; }
+
+@media (max-width: 700px) {
+  .app { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  .sidebar { gap: 12px; padding: 12px 16px; }
+  .sidebar nav { display: grid; gap: 6px; }
+  #rooms { display: flex; flex-wrap: wrap; gap: 4px; margin: 0; }
+  #rooms button { width: auto; }
+  .status { margin-top: 0; }
+  .room-header, .composer, .messages { padding-left: 16px; padding-right: 16px; }
+  .summary { margin: 12px 16px 0; }
+}
