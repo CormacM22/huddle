@@ -21,6 +21,7 @@
 	<properties>
 		<java.version>21</java.version>
 		<jacoco.version>0.8.13</jacoco.version>
+		<anthropic.version>3.2.0</anthropic.version>
 		<!-- Build fails if line coverage drops below this. -->
 		<coverage.minimum>0.80</coverage.minimum>
 	</properties>
@@ -41,6 +42,13 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
+		<!-- Official Anthropic SDK: typed client, retries, structured outputs. -->
+		<dependency>
+			<groupId>com.anthropic</groupId>
+			<artifactId>anthropic-java</artifactId>
+			<version>${anthropic.version}</version>
 		</dependency>
 
 		<!-- Test starters bring JUnit 5, Mockito, AssertJ and Spring's test support. -->
