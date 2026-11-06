@@ -1,2 +1,6 @@
-/mvnw text eol=lf
+# Normalise line endings so Linux/macOS/Windows checkouts are identical
+* text=auto eol=lf
 *.cmd text eol=crlf
+*.bat text eol=crlf
+*.jar binary
+*.png binary
