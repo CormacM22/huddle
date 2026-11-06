@@ -1,0 +1,38 @@
+# Build output
+target/
+build/
+!**/src/main/**/target/
+!**/src/test/**/target/
+.mvn/wrapper/maven-wrapper.jar
+
+# Secrets: never commit real keys
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Node / Playwright (if added later)
+node_modules/
+playwright-report/
+test-results/
+
+# IDEs
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.classpath
+.project
+.settings/
+.factorypath
+.apt_generated
+.sts4-cache/
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
